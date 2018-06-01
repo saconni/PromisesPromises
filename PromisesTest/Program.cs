@@ -41,6 +41,10 @@ namespace PromisesTest
             .Then(() =>
             {
                 Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] done4");
+            })
+            .Catch((ex)=>
+            {
+                Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] error: {ex.Message}");
             });
 
             Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] what are you waiting for?");

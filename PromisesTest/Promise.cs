@@ -41,20 +41,27 @@ namespace PromisesTest
         {
             try
             {
-                _action(() => Resolve(), (ex) => OnReject(ex));
+                _action(() => Resolve(), (ex) => Reject(ex));
             }
             catch (Exception ex)
             {
-                OnReject(ex);
+                Reject(ex);
             }
         }
 
-        private void OnReject(Exception ex)
+        private void Reject(Exception ex)
         {
             lock (_lock)
             {
                 _rejected = true;
-                _errorHandler?.Invoke(ex);
+                if(_nextPromise != null)
+                {
+                    _nextPromise.Reject(ex);
+                }
+                else
+                {
+                    _errorHandler?.Invoke(ex);
+                }
             }
         }
 
@@ -111,7 +118,7 @@ namespace PromisesTest
 
             lock (_lock)
             {
-                if (_resolved)
+                if (_rejected)
                 {
                     alreadyRejected = true;
                 }
@@ -123,7 +130,7 @@ namespace PromisesTest
 
             if (alreadyRejected)
             {
-                action.Invoke(_ex);
+                _errorHandler.Invoke(_ex);
             }
         }
     }
