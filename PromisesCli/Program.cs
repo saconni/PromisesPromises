@@ -1,20 +1,20 @@
-﻿using System;
+﻿using Promises;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PromisesTest
+namespace PromisesCli
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Promise.Create((resolve, reject) =>
+            Promises.Promise.Create(() =>
             {
                 Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] starting");
-                resolve();
             })
             .Then((resolve, reject) =>
             {
@@ -45,6 +45,34 @@ namespace PromisesTest
             .Catch((ex)=>
             {
                 Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] error: {ex.Message}");
+            });
+
+            Promise.All(new Promise[]
+            {
+                Promise.Create(() =>
+                {
+                    Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] starting task #1");
+                })
+                .Then((resolve, reject)=>
+                {
+                    Thread.Sleep(5000);
+                    Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] done task #1");
+                    resolve();
+                }),
+                Promise.Create(() =>
+                {
+                    Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] starting task #2");
+                })
+                .Then((resolve, reject)=>
+                {
+                    Thread.Sleep(5000);
+                    Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] done task #2");
+                    resolve();
+                })
+            })
+            .Then(() =>
+            {
+                Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] done with all tasks");
             });
 
             Console.WriteLine($"[{Thread.CurrentThread.ManagedThreadId}] what are you waiting for?");
